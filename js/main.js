@@ -20,6 +20,22 @@ const getXY = (e) => {
     touchX = e.touches[0].pageX - rectLeft;
     touchY = e.touches[0].pageY - rectTop;
 };
+
+// Theme switcher
+function setTheme(themeName) {
+    localStorage.setItem('theme', themeName);
+    document.documentElement.className = themeName;
+}
+
+// Функция переключения цветов
+function toggleTheme() {
+    if (localStorage.getItem('theme') === 'theme-dark') {
+        setTheme('theme-light');
+    } else {
+        setTheme('theme-dark');
+    }
+}
+
 const createGrid = () => {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < columns; j++) {

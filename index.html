@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 
 <head>
     <meta charset="UTF-8">
@@ -13,6 +13,7 @@
     <div class="container hide">
         <div class="heading">
             <h1>2048</h1>
+            <button class="btn switch" onclick="toggleTheme()">THEME</button>
             <div class="score-container">
                 Score:
                 <span id="score">0</span>
@@ -23,7 +24,7 @@
     <div class="cover-screen">
         <h2 id="over-text" class="hide">Game Over</h2>
         <p id="result"></p>
-        <button id="start-button">Start Game</button>
+        <button id="start-button" class="btn">Start Game</button>
     </div>
     <script src="./js/main.js"></script>
 </body>

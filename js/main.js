@@ -7,6 +7,7 @@ const overText = document.getElementById("over-text");
 let matrix,
     prevMatrix,
     score,
+    prevScore,
     isSwiped,
     touchY,
     initialY = 0,
@@ -184,20 +185,23 @@ const decision = () => {
 const undo = () => {
     if (prevMatrix) {
         matrix = JSON.parse(JSON.stringify(prevMatrix));
+        score = prevScore;
         // Обновление отображения на сетке
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
                 updateElement(i, j, matrix[i][j]);
             }
         }
-        prevMatrix = null;
         document.getElementById("score").innerText = score;
+        prevMatrix = null;
+        prevScore = undefined;
     }
 };
 
 // Объединенная функция slide
 const slide = (direction = false, matrixSize = 4, reverse = false) => {
     let isMatrixChanged = false;
+    prevScore = score; // Сохраняем текущий счетчик
     for (let i = 0; i < matrixSize; i++) {
         let num = [];
         for (let j = 0; j < (direction ? columns : rows); j++) {

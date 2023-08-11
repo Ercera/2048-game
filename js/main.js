@@ -5,6 +5,7 @@ const coverScreen = document.querySelector(".cover-screen");
 const result = document.getElementById("result");
 const overText = document.getElementById("over-text");
 let matrix,
+    prevMatrix,
     score,
     isSwiped,
     touchY,
@@ -28,7 +29,7 @@ function setTheme(themeName) {
 }
 
 // Функция переключения цветов
-function toggleTheme() {
+const toggleTheme = () => {
     if (localStorage.getItem('theme') === 'theme-dark') {
         setTheme('theme-light');
     } else {
@@ -69,9 +70,11 @@ const possibleMovesCheck = () => {
     }
     return false;
 };
+
 const randomPosition = (arr) => {
     return Math.floor(Math.random() * arr.length);
 };
+
 const hasEmptyBox = () => {
     for (let r in matrix) {
         for (let c in matrix[r]) {
@@ -82,7 +85,8 @@ const hasEmptyBox = () => {
     }
     return false;
 };
-const gameOverCheck = () => {
+
+const gameOver = () => {
     if (!possibleMovesCheck()) {
         coverScreen.classList.remove("hide");
         container.classList.add("hide");
@@ -106,7 +110,7 @@ const generateTwo = () => {
             generateTwo();
         }
     } else {
-        gameOverCheck();
+        gameOver();
     }
 };
 const generateFour = () => {
@@ -124,10 +128,12 @@ const generateFour = () => {
             generateFour();
         }
     } else {
-        gameOverCheck();
+        gameOver();
     }
 };
+
 const removeZero = (arr) => arr.filter((num) => num);
+
 const checker = (arr, reverseArr = false) => {
     arr = reverseArr ? removeZero(arr).reverse() : removeZero(arr);
     for (let i = 0; i < arr.length - 1; i++) {
@@ -149,106 +155,137 @@ const checker = (arr, reverseArr = false) => {
     }
     return arr;
 };
-const slideDown = () => {
-    for (let i = 0; i < columns; i++) {
-        let num = [];
-        for (let j = 0; j < rows; j++) {
-            num.push(matrix[j][i]);
-        }
-        num = checker(num, true);
-        for (let j = 0; j < rows; j++) {
-            matrix[j][i] = num[j];
-            let element = document.querySelector(`[data-position='${j}_${i}']`);
-            element.innerHTML = matrix[j][i] ? matrix[j][i] : "";
-            element.classList.value = "";
-            element.classList.add("box", `box-${matrix[j][i]}`);
-        }
-    }
+
+// Функции для более легкого чтения функции slide
+// Обновление элементов
+const updateElement = (i, j, value) => {
+    const element = document.querySelector(`[data-position='${i}_${j}']`);
+    element.innerHTML = value ? value : "";
+    element.classList.value = "";
+    element.classList.add("box", `box-${value}`);
+};
+
+// Сравнение состояний матрицы и, если состояние изменилось выполняется функция decision
+const arraysEqual = (arr1, arr2) => {
+    return JSON.stringify(arr1) === JSON.stringify(arr2);
+};
+
+// Генерация рандомных цифр 2 или 4
+const decision = () => {
     let decision = Math.random() > 0.5 ? 1 : 0;
     if (decision) {
         setTimeout(generateFour, 200);
     } else {
         setTimeout(generateTwo, 200);
     }
+}
+
+// Для восстановления сетки матрицы на шаг назад
+const undo = () => {
+    if (prevMatrix) {
+        matrix = JSON.parse(JSON.stringify(prevMatrix));
+        // Обновление отображения на сетке
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                updateElement(i, j, matrix[i][j]);
+            }
+        }
+        prevMatrix = null;
+        document.getElementById("score").innerText = score;
+    }
 };
-const slideUp = () => {
-    for (let i = 0; i < columns; i++) {
+
+// Объединенная функция slide
+const slide = (direction = false, matrixSize = 4, reverse = false) => {
+    let isMatrixChanged = false;
+    for (let i = 0; i < matrixSize; i++) {
         let num = [];
-        for (let j = 0; j < rows; j++) {
-            num.push(matrix[j][i]);
+        for (let j = 0; j < (direction ? columns : rows); j++) {
+            if (direction) {
+                num.push(matrix[i][j]);
+            } else {
+                num.push(matrix[j][i]);
+            }
         }
-        num = checker(num);
-        for (let j = 0; j < rows; j++) {
-            matrix[j][i] = num[j];
-            let element = document.querySelector(`[data-position = '${j}_${i}']`);
-            element.innerHTML = matrix[j][i] ? matrix[j][i] : "";
-            element.classList.value = "";
-            element.classList.add("box", `box-${matrix[j][i]}`);
+
+        const oldRowOrCol = [...matrix[i]];
+        // Сохраняем старую строку/столбец для сравнения
+
+        num = checker(num, reverse);
+        for (let j = 0; j < matrixSize; j++) {
+            if (direction) {
+                matrix[i][j] = num[j];
+                updateElement(i, j, matrix[i][j]);
+            } else {
+                matrix[j][i] = num[j];
+                updateElement(j, i, matrix[j][i]);
+            }
+        }
+        if (!arraysEqual(oldRowOrCol, matrix[i])) {
+            isMatrixChanged = true; // Матрица изменилась
         }
     }
-    let decision = Math.random() > 0.5 ? 1 : 0;
-    if (decision) {
-        setTimeout(generateFour, 200);
-    } else {
-        setTimeout(generateTwo, 200);
+    if (isMatrixChanged) {
+        decision();
     }
 };
+
 const slideRight = () => {
-    for (let i = 0; i < rows; i++) {
-        let num = [];
-        for (let j = 0; j < columns; j++) {
-            num.push(matrix[i][j]);
-        }
-        num = checker(num, true);
-        for (let j = 0; j < columns; j++) {
-            matrix[i][j] = num[j];
-            let element = document.querySelector(`[data-position = '${i}_${j}']`);
-            element.innerHTML = matrix[i][j] ? matrix[i][j] : "";
-            element.classList.value = "";
-            element.classList.add("box", `box-${matrix[i][j]}`);
-        }
-    }
-    let decision = Math.random() > 0.5 ? 1 : 0;
-    if (decision) {
-        setTimeout(generateFour, 200);
-    } else {
-        setTimeout(generateTwo, 200);
-    }
+    prevMatrix = JSON.parse(JSON.stringify(matrix));
+    slide(true, rows, true);
 };
+
+const slideDown = () => {
+    prevMatrix = JSON.parse(JSON.stringify(matrix));
+    slide(false, columns, true);
+};
+
+const slideUp = () => {
+    prevMatrix = JSON.parse(JSON.stringify(matrix));
+    slide(false, columns);
+};
+
 const slideLeft = () => {
-    for (let i = 0; i < rows; i++) {
-        let num = [];
-        for (let j = 0; j < columns; j++) {
-            num.push(matrix[i][j]);
-        }
-        num = checker(num);
-        for (let j = 0; j < columns; j++) {
-            matrix[i][j] = num[j];
-            let element = document.querySelector(`[data-position = '${i}_${j}']`);
-            element.innerHTML = matrix[i][j] ? matrix[i][j] : "";
-            element.classList.value = "";
-            element.classList.add("box", `box-${matrix[i][j]}`);
-        }
-    }
-    let decision = Math.random() > 0.5 ? 1 : 0;
-    if (decision) {
-        setTimeout(generateFour, 200);
-    } else {
-        setTimeout(generateTwo, 200);
-    }
+    prevMatrix = JSON.parse(JSON.stringify(matrix));
+    slide(true, rows);
 };
-document.addEventListener("keyup", (e) => {
-    if (e.code == "ArrowLeft") {
-        slideLeft();
-    } else if (e.code == "ArrowRight") {
-        slideRight();
-    } else if (e.code == "ArrowUp") {
-        slideUp();
-    } else if (e.code == "ArrowDown") {
-        slideDown();
-    }
+
+// Общая функция для обработки действий слайдов (клавиши и свайпы)
+function handleSlideAction(slideFunction) {
+    slideFunction();
     document.getElementById("score").innerText = score;
+}
+
+// Создаем объект с соответствиями между клавишами и функциями слайдов
+const keyToSlideFunction = {
+    ArrowLeft: slideLeft,
+    ArrowRight: slideRight,
+    ArrowUp: slideUp,
+    ArrowDown: slideDown
+};
+
+// Обработчик события клавиатуры и свайпов
+document.addEventListener("keyup", (e) => {
+    const slideFunction = keyToSlideFunction[e.code];
+    if (slideFunction) {
+        handleSlideAction(slideFunction);
+    }
 });
+
+grid.addEventListener("touchend", () => {
+    isSwiped = false;
+    const swipeCalls = {
+        up: slideUp,
+        down: slideDown,
+        left: slideLeft,
+        right: slideRight,
+    };
+    const slideFunction = swipeCalls[swipeDirection];
+    if (slideFunction) {
+        handleSlideAction(slideFunction);
+    }
+});
+
 grid.addEventListener("touchstart", (event) => {
     isSwiped = true;
     getXY(event);
@@ -267,17 +304,7 @@ grid.addEventListener("touchmove", (event) => {
         }
     }
 });
-grid.addEventListener("touchend", () => {
-    isSwiped = false;
-    let swipeCalls = {
-        up: slideUp,
-        down: slideDown,
-        left: slideLeft,
-        right: slideRight,
-    };
-    swipeCalls[swipeDirection]();
-    document.getElementById("score").innerText = score;
-});
+
 const startGame = () => {
     score = 0;
     document.getElementById("score").innerText = score;

@@ -8,6 +8,7 @@
     --shadow: rgba(255, 255, 255, 0.4);
 
     /* Grid */
+    --grid-bg: #dde1e7;
     --shadow-opt: rgba(94, 104, 121, 0.3);
 
     /* Buttons */
@@ -34,15 +35,16 @@
 .theme-dark {
     --background: #272727;
     --text-color: #feeeee;
-    --shadow: #141414;
+    --shadow: #212121;
 
     /* Grid */
-    --shadow-opt: #212121;
+    --grid-bg: #272727;
+    --shadow-opt: #141414;
 
     /* Buttons */
     --btn-active: #3498db;
     --btn-hover: #dbba34;
-    --btn-shadow: #babecc;
+    --btn-shadow: #212121;
 }
 
 * {
@@ -61,6 +63,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 2em;
 }
 
 h1 {
@@ -72,7 +75,10 @@ h1 {
     transform: translate(-50%, -50%);
     left: 50%;
     top: 50%;
-
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 h1 {
@@ -83,6 +89,7 @@ h1 {
 .btn-theme-switcher {
     border-radius: 0.5em;
     padding: 1em 2em;
+    text-transform: uppercase;
     color: var(--text-color);
     box-shadow: -3px -3px 7px var(--shadow),
         2px 2px 5px var(--shadow-opt);
@@ -103,10 +110,10 @@ h1 {
     align-items: center;
     flex-wrap: wrap;
     border-radius: 0.5em;
-    background-color: var(--background);
+    background-color: var(--grid-bg);
     border: 0.3em solid var(--background);
-    box-shadow: -3px -3px 2px var(--shadow),
-        2px 2px 2px var(--shadow-opt);
+    box-shadow: 2px 2px 5px var(--shadow-opt),
+        -5px -5px 10px var(--shadow);
 }
 
 .box {
@@ -118,8 +125,8 @@ h1 {
     align-items: center;
     justify-content: center;
     border-radius: 0.3em;
-    box-shadow: inset -3px -3px 1px var(--shadow),
-        inset 2px 2px 1px var(--shadow-opt);
+    box-shadow: inset 2px 2px 5px var(--shadow-opt),
+        inset -5px -5px 10px var(--shadow);
 }
 
 .box.box-2,
@@ -158,21 +165,25 @@ h1 {
     border: none;
     border-radius: 0.5em;
     font-size: 1em;
+    text-transform: uppercase;
+    font-weight: bold;
     letter-spacing: 0.2px;
     color: var(--text-color);
-    box-shadow: 2px 2px 5px var(--btn-shadow),
-        -5px -5px 10px var(--shadow);
-    transition: color 0.3s ease-in-out;
+    box-shadow: -3px -3px 7px var(--shadow),
+    2px 2px 5px var(--shadow-opt);
+    text-shadow: 1px 1px 0 var(--shadow-opt);
+    transition: all 0.2s ease-in-out;
 }
 
 .btn:hover {
     color: var(--btn-hover);
+    box-shadow: -2px -2px 5px var(--shadow), 2px 2px 5px var(--btn-shadow);
 }
 
 .btn:active {
-    color: #3498db;
-    box-shadow: inset 2px 2px 5px var(--btn-shadow),
-        inset -5px -5px 10px var(--shadow);
+    color: var(--btn-active);
+    box-shadow: inset 2px 2px 2px var(--btn-shadow),
+        inset -5px -5px 5px var(--shadow);
 }
 
 .hide {

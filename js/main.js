@@ -4,6 +4,7 @@ const container = document.querySelector(".container");
 const coverScreen = document.querySelector(".cover-screen");
 const result = document.getElementById("result");
 const overText = document.getElementById("over-text");
+
 let matrix,
     prevMatrix,
     score,
@@ -16,20 +17,21 @@ let matrix,
     rows = 4,
     columns = 4,
     swipeDirection;
+
 let rectLeft = grid.getBoundingClientRect().left;
 let rectTop = grid.getBoundingClientRect().top;
+
 const getXY = (e) => {
     touchX = e.touches[0].pageX - rectLeft;
     touchY = e.touches[0].pageY - rectTop;
 };
 
-// Theme switcher
+// ======== Управление темой ======== 
 function setTheme(themeName) {
     localStorage.setItem('theme', themeName);
     document.documentElement.className = themeName;
 }
 
-// Функция переключения цветов
 const toggleTheme = () => {
     if (localStorage.getItem('theme') === 'theme-dark') {
         setTheme('theme-light');
@@ -37,6 +39,31 @@ const toggleTheme = () => {
         setTheme('theme-dark');
     }
 }
+
+// ======== Состояние игры. ======== 
+// Выгрузка данных, если они есть в пользовательском кеше
+function restoreGameState() {
+    const savedTheme = localStorage.getItem('theme');
+    const savedMatrix = localStorage.getItem('matrix');
+    const savedScore = localStorage.getItem('score');
+
+    if (savedTheme) {
+        setTheme(savedTheme);
+    } else {
+        setTheme('theme-light'); // Установка начальной темы theme-light
+    }
+
+    if (savedMatrix) {
+        matrix = JSON.parse(savedMatrix);
+    }
+
+    if (savedScore) {
+        score = parseInt(savedScore);
+        document.getElementById("score").innerText = score;
+    }
+}
+
+restoreGameState();
 
 const createGrid = () => {
     for (let i = 0; i < rows; i++) {
@@ -48,6 +75,7 @@ const createGrid = () => {
         }
     }
 };
+
 const adjacentCheck = (arr) => {
     for (let i = 0; i < arr.length - 1; i++) {
         if (arr[i] == arr[i + 1]) {
@@ -56,6 +84,7 @@ const adjacentCheck = (arr) => {
     }
     return false;
 };
+
 const possibleMovesCheck = () => {
     for (let i in matrix) {
         if (adjacentCheck(matrix[i])) {
@@ -87,15 +116,6 @@ const hasEmptyBox = () => {
     return false;
 };
 
-const gameOver = () => {
-    if (!possibleMovesCheck()) {
-        coverScreen.classList.remove("hide");
-        container.classList.add("hide");
-        overText.classList.remove("hide");
-        result.innerText = `Final score: ${score}`;
-        startButton.innerText = "Restart Game";
-    }
-};
 const generateTwo = () => {
     if (hasEmptyBox()) {
         let randomRow = randomPosition(matrix);
@@ -231,6 +251,8 @@ const slide = (direction = false, matrixSize = 4, reverse = false) => {
     }
     if (isMatrixChanged) {
         decision();
+        localStorage.setItem('matrix', JSON.stringify(matrix));
+        localStorage.setItem('score', score);
     }
 };
 
@@ -254,6 +276,60 @@ const slideLeft = () => {
     slide(true, rows);
 };
 
+// ======== Логика запуска: ======== 
+const startGame = () => {
+    grid.innerHTML = "";
+    createGrid();
+    if (localStorage.getItem('matrix')) {
+        // Загрузка сохраненных значений из localStorage
+        matrix = JSON.parse(localStorage.getItem('matrix'));
+        score = parseInt(localStorage.getItem('score'));
+        document.getElementById("score").innerText = score;
+        decision();
+    } else {
+        // Установка начальных значений
+        score = 0;
+        document.getElementById("score").innerText = score;
+        matrix = [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ];
+        // Сохранение начальных значений в localStorage
+        localStorage.setItem('matrix', JSON.stringify(matrix));
+        localStorage.setItem('score', score);
+        generateTwo();
+        generateTwo();
+    }
+
+    container.classList.remove("hide");
+    coverScreen.classList.add("hide");
+    
+    // Обновление отображения элементов на сетке (визуального представления матрицы)
+    matrix.forEach((row, i) => {
+        row.forEach((value, j) => {
+            updateElement(i, j, value);
+        });
+    });
+};
+
+const gameOver = () => {
+    if (!possibleMovesCheck()) {
+        coverScreen.classList.remove("hide");
+        container.classList.add("hide");
+        overText.classList.remove("hide");
+        result.innerText = `Final score: ${score}`;
+        startButton.innerText = "Restart Game";
+    }
+};
+
+startButton.addEventListener("click", () => {
+    startGame();
+    swipeDirection = "";
+});
+
+// ======== Обработка слайдов и жестов: ======== 
 // Общая функция для обработки действий слайдов (клавиши и свайпы)
 function handleSlideAction(slideFunction) {
     slideFunction();
@@ -307,25 +383,4 @@ grid.addEventListener("touchmove", (event) => {
             swipeDirection = diffX > 0 ? "right" : "left";
         }
     }
-});
-
-const startGame = () => {
-    score = 0;
-    document.getElementById("score").innerText = score;
-    grid.innerHTML = "";
-    matrix = [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-    ];
-    container.classList.remove("hide");
-    coverScreen.classList.add("hide");
-    createGrid();
-    generateTwo();
-    generateTwo();
-};
-startButton.addEventListener("click", () => {
-    startGame();
-    swipeDirection = "";
 });

@@ -1,4 +1,5 @@
 @import url(./reset.css);
+@import url(./media.css);
 /* Fonts */
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900");
 
@@ -94,13 +95,16 @@ h1 {
     color: var(--text-color);
     box-shadow: -3px -3px 7px var(--shadow),
         2px 2px 5px var(--shadow-opt);
+    user-select: none;
 }
 
 .name-container {
     margin-bottom: 2em;
 }
 
-
+.score-container #score {
+    user-select: auto;
+}
 
 #score {
     font-weight: 600;
@@ -177,7 +181,7 @@ h1 {
     letter-spacing: 0.2px;
     color: var(--text-color);
     box-shadow: -3px -3px 7px var(--shadow),
-    2px 2px 5px var(--shadow-opt);
+        2px 2px 5px var(--shadow-opt);
     text-shadow: 1px 1px 0 var(--shadow-opt);
     transition: all 0.2s ease-in-out;
 }
@@ -191,6 +195,11 @@ h1 {
     color: var(--btn-active);
     box-shadow: inset 2px 2px 2px var(--btn-shadow),
         inset -5px -5px 5px var(--shadow);
+}
+
+.undo-img {
+    width: 2em;
+    height: 1em;
 }
 
 .hide {

@@ -1,4 +1,5 @@
-let grid = document.querySelector(".grid");
+let field = document.querySelector(".field");
+const continueButton = document.getElementById("continue");
 const startButton = document.getElementById("start-button");
 const container = document.querySelector(".container");
 const coverScreen = document.querySelector(".cover-screen");
@@ -7,6 +8,7 @@ const overText = document.getElementById("over-text");
 
 let matrix,
     prevMatrix,
+    best,
     score,
     prevScore,
     isSwiped,
@@ -18,8 +20,8 @@ let matrix,
     columns = 4,
     swipeDirection;
 
-let rectLeft = grid.getBoundingClientRect().left;
-let rectTop = grid.getBoundingClientRect().top;
+let rectLeft = field.getBoundingClientRect().left;
+let rectTop = field.getBoundingClientRect().top;
 
 const getXY = (e) => {
     touchX = e.touches[0].pageX - rectLeft;
@@ -42,9 +44,12 @@ const toggleTheme = () => {
 
 // ======== Состояние игры. ======== 
 // Выгрузка данных, если они есть в пользовательском кеше
+// Проверка наличия данных в localStorage
+
 function restoreGameState() {
     const savedTheme = localStorage.getItem('theme');
     const savedMatrix = localStorage.getItem('matrix');
+    const savedBestScore = localStorage.getItem('bestScore');
     const savedScore = localStorage.getItem('score');
 
     if (savedTheme) {
@@ -54,24 +59,31 @@ function restoreGameState() {
     }
 
     if (savedMatrix) {
+        continueButton.classList.remove("hide");
         matrix = JSON.parse(savedMatrix);
+    }
+
+    if (savedBestScore) {
+        best = parseInt(savedBestScore); // Задаем значение bestScore
+        document.getElementById("best-score").innerText = best;
     }
 
     if (savedScore) {
         score = parseInt(savedScore);
         document.getElementById("score").innerText = score;
     }
+
 }
 
 restoreGameState();
 
-const createGrid = () => {
+const createField = () => {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < columns; j++) {
             const boxDiv = document.createElement("div");
             boxDiv.classList.add("box");
             boxDiv.setAttribute("data-position", `${i}_${j}`);
-            grid.appendChild(boxDiv);
+            field.appendChild(boxDiv);
         }
     }
 };
@@ -116,6 +128,14 @@ const hasEmptyBox = () => {
     return false;
 };
 
+const checkScore = () => {
+    if (score > best) {
+        best = score;
+        document.getElementById("best-score").innerText = best;
+        localStorage.setItem('savedBestScore', best);
+    }
+}
+
 const generateTwo = () => {
     if (hasEmptyBox()) {
         let randomRow = randomPosition(matrix);
@@ -127,6 +147,7 @@ const generateTwo = () => {
             );
             element.innerHTML = 2;
             element.classList.add("box-2");
+            checkScore();
         } else {
             generateTwo();
         }
@@ -145,6 +166,7 @@ const generateFour = () => {
             );
             element.innerHTML = 4;
             element.classList.add("box-4");
+            checkScore();
         } else {
             generateFour();
         }
@@ -162,6 +184,7 @@ const checker = (arr, reverseArr = false) => {
             arr[i] += arr[i + 1];
             arr[i + 1] = 0;
             score += arr[i];
+            checkScore();
         }
     }
     arr = reverseArr ? removeZero(arr).reverse() : removeZero(arr);
@@ -190,6 +213,14 @@ const updateElement = (i, j, value) => {
 const arraysEqual = (arr1, arr2) => {
     return JSON.stringify(arr1) === JSON.stringify(arr2);
 };
+
+// Кнопка возврата
+const home = () => {
+    container.classList.add("hide");
+    coverScreen.classList.remove("hide");
+    overText.classList.add("hide");
+    result.innerText = `Current score: ${score}`;
+}
 
 // Генерация рандомных цифр 2 или 4
 const decision = () => {
@@ -277,35 +308,20 @@ const slideLeft = () => {
 };
 
 // ======== Логика запуска: ======== 
-const startGame = () => {
-    grid.innerHTML = "";
-    createGrid();
-    if (localStorage.getItem('matrix')) {
-        // Загрузка сохраненных значений из localStorage
-        matrix = JSON.parse(localStorage.getItem('matrix'));
-        score = parseInt(localStorage.getItem('score'));
-        document.getElementById("score").innerText = score;
-        decision();
-    } else {
-        // Установка начальных значений
-        score = 0;
-        document.getElementById("score").innerText = score;
-        matrix = [
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ];
-        // Сохранение начальных значений в localStorage
-        localStorage.setItem('matrix', JSON.stringify(matrix));
-        localStorage.setItem('score', score);
-        generateTwo();
-        generateTwo();
-    }
-
+const gameCheck = () => {
+    document.getElementById("score").innerText = score;
+    field.innerHTML = "";
+    createField();
     container.classList.remove("hide");
     coverScreen.classList.add("hide");
-    
+    decision();
+}
+
+const continueGame = () => {
+    matrix = JSON.parse(localStorage.getItem('matrix'));
+    score = parseInt(localStorage.getItem('score'));
+    gameCheck();
+
     // Обновление отображения элементов на сетке (визуального представления матрицы)
     matrix.forEach((row, i) => {
         row.forEach((value, j) => {
@@ -314,20 +330,41 @@ const startGame = () => {
     });
 };
 
-const gameOver = () => {
-    if (!possibleMovesCheck()) {
-        coverScreen.classList.remove("hide");
-        container.classList.add("hide");
-        overText.classList.remove("hide");
-        result.innerText = `Final score: ${score}`;
-        startButton.innerText = "Restart Game";
-    }
+const startGame = () => {
+    matrix = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+    ];
+    score = 0;
+    gameCheck();
+    // Сохранение начальных значений в localStorage
+    localStorage.setItem('matrix', JSON.stringify(matrix));
+    localStorage.setItem('score', score);
+    generateTwo();
 };
 
 startButton.addEventListener("click", () => {
     startGame();
     swipeDirection = "";
 });
+
+continueButton.addEventListener("click", () => {
+    continueGame();
+    swipeDirection = "";
+});
+
+const gameOver = () => {
+    if (!possibleMovesCheck()) {
+        coverScreen.classList.remove("hide");
+        container.classList.add("hide");
+        continueButton.classList.add("hide");
+        overText.classList.remove("hide");
+        result.innerText = `Final score: ${score}`;
+        startButton.innerText = "Restart Game";
+    }
+};
 
 // ======== Обработка слайдов и жестов: ======== 
 // Общая функция для обработки действий слайдов (клавиши и свайпы)
@@ -352,7 +389,7 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
-grid.addEventListener("touchend", () => {
+field.addEventListener("touchend", () => {
     isSwiped = false;
     const swipeCalls = {
         up: slideUp,
@@ -366,13 +403,13 @@ grid.addEventListener("touchend", () => {
     }
 });
 
-grid.addEventListener("touchstart", (event) => {
+field.addEventListener("touchstart", (event) => {
     isSwiped = true;
     getXY(event);
     initialX = touchX;
     initialY = touchY;
 });
-grid.addEventListener("touchmove", (event) => {
+field.addEventListener("touchmove", (event) => {
     if (isSwiped) {
         getXY(event);
         let diffX = touchX - initialX;

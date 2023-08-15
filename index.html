@@ -11,28 +11,42 @@
 
 <body>
     <div class="container hide">
-        <div class="name-container">
-            <h1>2048</h1>
-        </div>
+
         <div class="heading">
-            <button class="btn undo" onclick="undo()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="48" d="M244 400L100 256l144-144M120 256h292" />
+            <div class="app-name">
+                <h1>2048</h1>
+            </div>
+            <div class="best-score">
+                Best:
+                <span id="best-score">0</span>
+            </div>
+            <button class="btn home" onclick="home()">
+                <svg class="home">
+                    <use xlink:href="/img/sprites.svg#home" />
                 </svg>
             </button>
-            <button class="btn switch" onclick="toggleTheme()">THEME</button>
-            <div class="score-container">
+            <button class="btn theme" onclick="toggleTheme()">
+                <svg class="theme">
+                    <use xlink:href="/img/sprites.svg#theme" />
+                </svg>
+            </button>
+            <button class="btn undo" onclick="undo()">
+                <svg class="undo">
+                    <use xlink:href="/img/sprites.svg#undo" />
+                </svg>
+            </button>
+            <div class="current-score">
                 Score:
                 <span id="score">0</span>
             </div>
         </div>
-        <div class="grid"></div>
+        <div class="field"></div>
     </div>
     <div class="cover-screen">
         <h2 id="over-text" class="hide">Game Over</h2>
         <p id="result"></p>
-        <button id="start-button" class="btn">Start Game</button>
+        <button id="continue" class="btn btn__continue hide">Continue</button>
+        <button id="start-button" class="btn btn__start">Start Game</button>
     </div>
     <script src="./js/main.js"></script>
 </body>

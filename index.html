@@ -11,8 +11,13 @@
 </head>
 
 <body>
+    <div class="cover-screen">
+        <h2 id="over-text" class="hide">Game Over</h2>
+        <p id="result"></p>
+        <button id="continue" class="btn btn__continue hide">Continue</button>
+        <button id="start-button" class="btn btn__start">Start Game</button>
+    </div>
     <div class="container hide">
-
         <div class="heading">
             <div class="app-name">
                 <h1>2048</h1>
@@ -33,22 +38,16 @@
                 </svg>
             </button>
             <div class="best-score">
-                <p>Best:</p><br>
+                <p>Best:</p>
                 <p id="best-score">0</p>
             </div>
             <div class="current-score">
                 Score:
-                <br/>
+                <br />
                 <span id="score">0</span>
             </div>
         </div>
         <div class="field"></div>
-    </div>
-    <div class="cover-screen">
-        <h2 id="over-text" class="hide">Game Over</h2>
-        <p id="result"></p>
-        <button id="continue" class="btn btn__continue hide">Continue</button>
-        <button id="start-button" class="btn btn__start">Start Game</button>
     </div>
     <script src="./js/main.js"></script>
 </body>

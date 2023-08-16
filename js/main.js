@@ -253,6 +253,7 @@ const undo = () => {
 const slide = (direction = false, matrixSize = 4, reverse = false) => {
     let isMatrixChanged = false;
     prevScore = score; // Сохраняем текущий счетчик
+    const oldMatrix = JSON.parse(JSON.stringify(matrix)); // Сохраняем старое состояние матрицы
     for (let i = 0; i < matrixSize; i++) {
         let num = [];
         for (let j = 0; j < (direction ? columns : rows); j++) {
@@ -262,9 +263,6 @@ const slide = (direction = false, matrixSize = 4, reverse = false) => {
                 num.push(matrix[j][i]);
             }
         }
-
-        const oldRowOrCol = [...matrix[i]];
-        // Сохраняем старую строку/столбец для сравнения
 
         num = checker(num, reverse);
         for (let j = 0; j < matrixSize; j++) {
@@ -276,9 +274,9 @@ const slide = (direction = false, matrixSize = 4, reverse = false) => {
                 updateElement(j, i, matrix[j][i]);
             }
         }
-        if (!arraysEqual(oldRowOrCol, matrix[i])) {
-            isMatrixChanged = true; // Матрица изменилась
-        }
+    }
+    if (!arraysEqual(oldMatrix, matrix)) { // Проверяем изменения во всей матрице
+        isMatrixChanged = true; // Матрица изменилась
     }
     if (isMatrixChanged) {
         decision();

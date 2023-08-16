@@ -17,10 +17,6 @@
             <div class="app-name">
                 <h1>2048</h1>
             </div>
-            <div class="best-score">
-                Best:
-                <span id="best-score">0</span>
-            </div>
             <button class="btn home" onclick="home()">
                 <svg>
                     <use xlink:href="./img/sprites.svg#home" />
@@ -36,8 +32,13 @@
                     <use xlink:href="./img/sprites.svg#undo" />
                 </svg>
             </button>
+            <div class="best-score">
+                <p>Best:</p><br>
+                <p id="best-score">0</p>
+            </div>
             <div class="current-score">
                 Score:
+                <br/>
                 <span id="score">0</span>
             </div>
         </div>

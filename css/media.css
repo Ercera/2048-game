@@ -8,6 +8,11 @@
         margin: 1em auto;
     }
 
+    .btn__start,
+    .btn__continue {
+        width: 50vmin
+    }
+
     .btn {
         border-radius: 0.3em;
         font-size: 12px;

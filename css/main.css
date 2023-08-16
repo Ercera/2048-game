@@ -44,20 +44,20 @@
     /* Buttons */
     --btn-active: #3498db;
     --btn-hover: #dbba34;
-    --btn-shadow: #212121;
+    --btn-shadow: #212121
 }
 
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    font-family: "Roboto", sans-serif;
+    font-family: "Roboto", sans-serif
 }
 
 body {
     background: var(--background);
-    height: 100vh;
     margin: 0 auto;
+    overflow: hidden
 }
 
 /* Container */
@@ -67,12 +67,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: center
 }
 
 h1 {
     color: var(--text-color);
-    font-size: 2em;
+    font-size: 2em
 }
 
 /* Heading menu*/
@@ -83,7 +83,7 @@ h1 {
     gap: 1em;
     align-items: center;
     justify-content: center;
-    margin: 1em 0;
+    margin: 1em 0
 }
 
 .app-name,
@@ -98,19 +98,36 @@ h1 {
     text-transform: uppercase;
     color: var(--text-color);
     box-shadow: -3px -3px 7px var(--shadow),
-        2px 2px 5px var(--shadow-opt);
+        2px 2px 5px var(--shadow-opt)
 }
 
 .app-name {
-    grid-column: 1 / 3;
+    grid-column: 2;
+    grid-row: 1 / 3
 }
 
 .best-score {
-    grid-column: 3 / 4;
+    grid-column: 3;
     grid-row: 1 / 3
 }
 
 .current-score {
+    grid-column: 1;
+    grid-row: 1 / 3
+}
+
+.home {
+    grid-column: 1;
+    grid-row: 3
+}
+
+.back {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.theme {
+    padding: .4em;
     grid-column: 3;
     grid-row: 3
 }
@@ -119,33 +136,17 @@ h1 {
 .undo,
 .theme {
     width: 100%;
-    height: 100%;
+    height: 100%
 }
 
 .btn svg {
     width: 90%;
-    height: 90%;
-}
-
-.home {
-    grid-column: 1;
-    grid-row: 2;
-}
-
-.back {
-    grid-column: 1;
-    grid-row: 3;
-}
-
-.theme {
-    padding: .4em;
-    grid-column: 2;
-    grid-row: 2 / 4;
+    height: 90%
 }
 
 #score {
     user-select: auto;
-    font-weight: 600;
+    font-weight: 600
 }
 
 /*  */
@@ -162,7 +163,7 @@ h1 {
     background-color: var(--field-bg);
     border: 0.5em solid var(--background);
     box-shadow: 2px 2px 5px var(--shadow-opt),
-        -5px -5px 10px var(--shadow);
+        -5px -5px 10px var(--shadow)
 }
 
 .box {
@@ -175,7 +176,7 @@ h1 {
     justify-content: center;
     border-radius: 0.3em;
     box-shadow: inset 2px 2px 5px var(--shadow-opt),
-        inset -5px -5px 10px var(--shadow);
+        inset -5px -5px 10px var(--shadow)
 }
 
 .cover-screen {
@@ -190,7 +191,7 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 1em;
+    gap: 1em
 }
 
 .btn {
@@ -200,41 +201,33 @@ h1 {
         2px 2px 5px var(--shadow-opt);
     color: var(--text-color);
     text-shadow: 1px 1px 0 var(--shadow-opt);
-    transition: all 0.25s ease-in-out;
+    transition: all 0.25s ease-in-out
 }
 
 .btn:hover {
     color: var(--btn-hover);
-    box-shadow: -2px -2px 5px var(--shadow), 2px 2px 5px var(--btn-shadow);
+    box-shadow: -2px -2px 5px var(--shadow), 2px 2px 5px var(--btn-shadow)
 }
 
 .btn:active {
     color: var(--btn-active);
     box-shadow: inset 2px 2px 2px var(--btn-shadow),
-        inset -5px -5px 5px var(--shadow);
+        inset -5px -5px 5px var(--shadow)
 }
 
 .btn__start,
 .btn__continue {
     width: 18em;
-    padding: 1em;
-}
-
-@media (max-width: 767px) {
-
-    .btn__start,
-    .btn__continue {
-        width: 50vmin;
-    }
+    padding: 1em
 }
 
 #result,
 #over-text {
-    color: var(--text-color);
+    color: var(--text-color)
 }
 
 .hide {
-    display: none;
+    display: none
 }
 
 .box.box-2,
@@ -251,60 +244,66 @@ h1 {
     user-select: none;
     border: 1px solid var(--shadow);
     box-shadow: -3px -3px 7px var(--shadow),
-        2px 2px 5px var(--shadow-opt);
+        2px 2px 5px var(--shadow-opt)
+}
+
+.box-2,
+.box-4 {
+    color: var(--box-font-2-4)
+}
+
+.box-8,
+.box-16,
+.box-32,
+.box-64,
+.box-128,
+.box-256,
+.box-512,
+.box-1024,
+.box-2048 {
+    color: var(--box-font)
 }
 
 .box-2 {
-    background-color: var(--box-2-bg);
-    color: var(--box-font-2-4);
+    background-color: var(--box-2-bg)
 }
 
 .box-4 {
-    background-color: var(--box-4-bg);
-    color: var(--box-font-2-4);
+    background-color: var(--box-4-bg)
 }
 
 .box-8 {
-    background-color: var(--box-8-bg);
-    color: var(--box-font);
+    background-color: var(--box-8-bg)
 }
 
 .box-16 {
-    background-color: var(--box-16-bg);
-    color: var(--box-font);
+    background-color: var(--box-16-bg)
 }
 
 .box-32 {
-    background-color: var(--box-32-bg);
-    color: var(--box-font);
+    background-color: var(--box-32-bg)
 }
 
 .box-64 {
-    background-color: var(--box-64-bg);
-    color: var(--box-font);
+    background-color: var(--box-64-bg)
 }
 
 .box-128 {
-    background-color: var(--box-128-bg);
-    color: var(--box-font);
+    background-color: var(--box-128-bg)
 }
 
 .box-256 {
-    background-color: var(--box-256-bg);
-    color: var(--box-font);
+    background-color: var(--box-256-bg)
 }
 
 .box-512 {
-    background-color: var(--box-512-bg);
-    color: var(--box-font);
+    background-color: var(--box-512-bg)
 }
 
 .box-1024 {
-    background-color: var(--box-1024-bg);
-    color: var(--box-font);
+    background-color: var(--box-1024-bg)
 }
 
 .box-2048 {
-    background-color: var(--box-2048-bg);
-    color: var(--box-font);
+    background-color: var(--box-2048-bg)
 }

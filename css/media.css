@@ -1,0 +1,71 @@
+@media (max-width: 768px) {
+    body {
+        overflow: hidden;
+    }
+
+    .container {
+        height: 100vh;
+        margin: 1em auto;
+    }
+
+    .btn {
+        border-radius: 0.3em;
+        font-size: 12px;
+    }
+
+    .box {
+        font-size: 32px;
+        width: 2.75em;
+        height: 2.75em;
+    }
+
+    .btn__start,
+    .btn__continue {
+        width: 40vmin;
+    }
+}
+
+@media (max-width: 527px) {
+    .btn {
+        border-radius: 0.3em;
+        font-size: 12px;
+    }
+
+    .btn svg {
+        width: 80%;
+        height: 80%;
+    }
+
+    .box {
+        width: 3.15em;
+        height: 3.15em;
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 450px) {
+    .container {
+        margin: auto;
+        padding: 0;
+    }
+
+    .heading {
+        grid-template-columns: repeat(3, minmax(20px, 5.5em));
+        gap: .75em;
+    }
+
+    .field {
+        width: 18em;
+        height: 18em;
+    }
+
+    .btn svg {
+        width: 75%;
+        height: 75%;
+    }
+
+    .box {
+        width: 2.36em;
+        height: 2.36em;
+    }
+}

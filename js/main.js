@@ -389,6 +389,30 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
+let startY;
+let startX;
+
+field.addEventListener("touchstart", (event) => {
+    isSwiped = true;
+    getXY(event);
+    startY = touchY; // Сохраняем начальные координаты Y
+    startX = touchX; // Сохраняем начальные координаты X
+});
+field.addEventListener("touchmove", (event) => {
+    if (isSwiped) {
+        getXY(event);
+        let diffX = touchX - startX;
+        let diffY = touchY - startY;
+
+        // Определяем направление скролла в зависимости от разницы в координатах
+        if (Math.abs(diffY) > Math.abs(diffX)) {
+            swipeDirection = diffY > 0 ? "down" : "up";
+        } else {
+            swipeDirection = diffX > 0 ? "right" : "left";
+        }
+    }
+});
+
 field.addEventListener("touchend", () => {
     isSwiped = false;
     const swipeCalls = {
@@ -400,24 +424,5 @@ field.addEventListener("touchend", () => {
     const slideFunction = swipeCalls[swipeDirection];
     if (slideFunction) {
         handleSlideAction(slideFunction);
-    }
-});
-
-field.addEventListener("touchstart", (event) => {
-    isSwiped = true;
-    getXY(event);
-    initialX = touchX;
-    initialY = touchY;
-});
-field.addEventListener("touchmove", (event) => {
-    if (isSwiped) {
-        getXY(event);
-        let diffX = touchX - initialX;
-        let diffY = touchY - initialY;
-        if (Math.abs(diffY) > Math.abs(diffX)) {
-            swipeDirection = diffX > 0 ? "down" : "up";
-        } else {
-            swipeDirection = diffX > 0 ? "right" : "left";
-        }
     }
 });

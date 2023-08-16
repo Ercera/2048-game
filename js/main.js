@@ -8,8 +8,8 @@ const overText = document.getElementById("over-text");
 
 let matrix,
     prevMatrix,
-    best,
-    score,
+    best = 0,
+    score = 0,
     prevScore,
     isSwiped,
     touchY,
@@ -45,36 +45,44 @@ const toggleTheme = () => {
 // ======== Состояние игры. ======== 
 // Выгрузка данных, если они есть в пользовательском кеше
 // Проверка наличия данных в localStorage
-
-function restoreGameState() {
-    const savedTheme = localStorage.getItem('theme');
-    const savedMatrix = localStorage.getItem('matrix');
-    const savedBestScore = localStorage.getItem('bestScore');
-    const savedScore = localStorage.getItem('score');
-
-    if (savedTheme) {
-        setTheme(savedTheme);
-    } else {
-        setTheme('theme-light'); // Установка начальной темы theme-light
-    }
-
-    if (savedMatrix) {
-        continueButton.classList.remove("hide");
-        matrix = JSON.parse(savedMatrix);
-    }
-
-    if (savedBestScore) {
-        best = parseInt(savedBestScore); // Задаем значение bestScore
+const checkScore = () => {
+    // Проверяем, изменился ли score и обновляем bestScore
+    if (score > best) {
+        best = score;
         document.getElementById("best-score").innerText = best;
+        localStorage.setItem('bestScore', best);
     }
-
-    if (savedScore) {
-        score = parseInt(savedScore);
-        document.getElementById("score").innerText = score;
-    }
-
 }
 
+function restoreGameState() {
+    const savedSettings = {
+        theme: 'theme-light',
+        matrix: null,
+        bestScore: null,
+        score: null
+    };
+
+    for (const key in savedSettings) {
+        const savedValue = localStorage.getItem(key);
+        if (savedValue) {
+            if (key === 'matrix') {
+                continueButton.classList.remove("hide");
+                matrix = JSON.parse(savedValue);
+            } else if (key === 'bestScore') {
+                best = parseInt(savedValue);
+                document.getElementById("best-score").innerText = best;
+            } else if (key === 'score') {
+                score = parseInt(savedValue);
+                document.getElementById("score").innerText = score;
+            } else if (key === 'theme') {
+                setTheme(savedValue);
+            }
+        } else if (key === 'theme') {
+            setTheme(savedSettings.theme);
+        }
+    }
+    checkScore();
+}
 restoreGameState();
 
 const createField = () => {
@@ -88,29 +96,16 @@ const createField = () => {
     }
 };
 
-const adjacentCheck = (arr) => {
-    for (let i = 0; i < arr.length - 1; i++) {
-        if (arr[i] == arr[i + 1]) {
-            return true;
-        }
-    }
-    return false;
-};
+// Поиск соседних одинаковых элементов в массиве
+// Метод some вернет true, если хотя бы одна пара соседних элементов равны друг другу
+const adjacentCheck = (arr) =>
+    arr.some((value, index) =>
+        value === arr[index + 1]);
 
+// Проверка соседних одинаковых элементов в строках и столбцах матрицы
 const possibleMovesCheck = () => {
-    for (let i in matrix) {
-        if (adjacentCheck(matrix[i])) {
-            return true;
-        }
-        let colarr = [];
-        for (let j = 0; j < columns; j++) {
-            colarr.push(matrix[i][j]);
-        }
-        if (adjacentCheck(colarr)) {
-            return true;
-        }
-    }
-    return false;
+    return matrix.some(row => adjacentCheck(row)) ||
+        matrix[0].map((col, j) => adjacentCheck(matrix.map(row => row[j]))).some(Boolean);
 };
 
 const randomPosition = (arr) => {
@@ -128,47 +123,19 @@ const hasEmptyBox = () => {
     return false;
 };
 
-const checkScore = () => {
-    if (score > best) {
-        best = score;
-        document.getElementById("best-score").innerText = best;
-        localStorage.setItem('savedBestScore', best);
-    }
-}
-
-const generateTwo = () => {
+const generateNumber = (number) => {
     if (hasEmptyBox()) {
         let randomRow = randomPosition(matrix);
         let randomCol = randomPosition(matrix[randomPosition(matrix)]);
         if (matrix[randomRow][randomCol] == 0) {
-            matrix[randomRow][randomCol] = 2;
+            matrix[randomRow][randomCol] = number;
             let element = document.querySelector(
-                `[data-position = '${randomRow}_${randomCol}']`
+                `[data-position='${randomRow}_${randomCol}']`
             );
-            element.innerHTML = 2;
-            element.classList.add("box-2");
-            checkScore();
+            element.innerHTML = number;
+            element.classList.add(`box-${number}`);
         } else {
-            generateTwo();
-        }
-    } else {
-        gameOver();
-    }
-};
-const generateFour = () => {
-    if (hasEmptyBox()) {
-        let randomRow = randomPosition(matrix);
-        let randomCol = randomPosition(matrix[randomPosition(matrix)]);
-        if (matrix[randomRow][randomCol] == 0) {
-            matrix[randomRow][randomCol] = 4;
-            let element = document.querySelector(
-                `[data-position= '${randomRow}_${randomCol}']`
-            );
-            element.innerHTML = 4;
-            element.classList.add("box-4");
-            checkScore();
-        } else {
-            generateFour();
+            generateNumber(number);
         }
     } else {
         gameOver();
@@ -184,7 +151,6 @@ const checker = (arr, reverseArr = false) => {
             arr[i] += arr[i + 1];
             arr[i + 1] = 0;
             score += arr[i];
-            checkScore();
         }
     }
     arr = reverseArr ? removeZero(arr).reverse() : removeZero(arr);
@@ -214,7 +180,7 @@ const arraysEqual = (arr1, arr2) => {
     return JSON.stringify(arr1) === JSON.stringify(arr2);
 };
 
-// Кнопка возврата
+// Кнопка возврата на главный экран
 const home = () => {
     container.classList.add("hide");
     coverScreen.classList.remove("hide");
@@ -226,9 +192,9 @@ const home = () => {
 const decision = () => {
     let decision = Math.random() > 0.5 ? 1 : 0;
     if (decision) {
-        setTimeout(generateFour, 200);
+        setTimeout(generateNumber(4), 200);
     } else {
-        setTimeout(generateTwo, 200);
+        setTimeout(generateNumber(2), 200);
     }
 }
 
@@ -251,28 +217,23 @@ const undo = () => {
 
 // Объединенная функция slide
 const slide = (direction = false, matrixSize = 4, reverse = false) => {
+    const oldMatrix = JSON.parse(JSON.stringify(matrix));
     let isMatrixChanged = false;
-    prevScore = score; // Сохраняем текущий счетчик
-    const oldMatrix = JSON.parse(JSON.stringify(matrix)); // Сохраняем старое состояние матрицы
+    prevScore = score;
     for (let i = 0; i < matrixSize; i++) {
         let num = [];
-        for (let j = 0; j < (direction ? columns : rows); j++) {
-            if (direction) {
-                num.push(matrix[i][j]);
-            } else {
-                num.push(matrix[j][i]);
-            }
+        for (let j = 0; j < matrixSize; j++) {
+            const rowIndex = direction ? i : j;
+            const colIndex = direction ? j : i;
+            num.push(matrix[rowIndex][colIndex]);
         }
 
         num = checker(num, reverse);
         for (let j = 0; j < matrixSize; j++) {
-            if (direction) {
-                matrix[i][j] = num[j];
-                updateElement(i, j, matrix[i][j]);
-            } else {
-                matrix[j][i] = num[j];
-                updateElement(j, i, matrix[j][i]);
-            }
+            const rowIndex = direction ? i : j;
+            const colIndex = direction ? j : i;
+            matrix[rowIndex][colIndex] = num[j];
+            updateElement(rowIndex, colIndex, matrix[rowIndex][colIndex]);
         }
     }
     if (!arraysEqual(oldMatrix, matrix)) { // Проверяем изменения во всей матрице
@@ -282,26 +243,24 @@ const slide = (direction = false, matrixSize = 4, reverse = false) => {
         decision();
         localStorage.setItem('matrix', JSON.stringify(matrix));
         localStorage.setItem('score', score);
+        prevMatrix = oldMatrix;
+        checkScore();
     }
 };
 
 const slideRight = () => {
-    prevMatrix = JSON.parse(JSON.stringify(matrix));
     slide(true, rows, true);
 };
 
 const slideDown = () => {
-    prevMatrix = JSON.parse(JSON.stringify(matrix));
     slide(false, columns, true);
 };
 
 const slideUp = () => {
-    prevMatrix = JSON.parse(JSON.stringify(matrix));
     slide(false, columns);
 };
 
 const slideLeft = () => {
-    prevMatrix = JSON.parse(JSON.stringify(matrix));
     slide(true, rows);
 };
 
@@ -340,7 +299,7 @@ const startGame = () => {
     // Сохранение начальных значений в localStorage
     localStorage.setItem('matrix', JSON.stringify(matrix));
     localStorage.setItem('score', score);
-    generateTwo();
+    decision();
 };
 
 startButton.addEventListener("click", () => {
@@ -369,6 +328,9 @@ const gameOver = () => {
 function handleSlideAction(slideFunction) {
     slideFunction();
     document.getElementById("score").innerText = score;
+    if (!possibleMovesCheck()) {
+        gameOver();
+    }
 }
 
 // Создаем объект с соответствиями между клавишами и функциями слайдов

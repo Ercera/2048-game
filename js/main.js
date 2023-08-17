@@ -385,4 +385,23 @@ field.addEventListener("touchend", () => {
     if (slideFunction) {
         handleSlideAction(slideFunction);
     }
+
+    // Тестовое использование, для мобильных устройств, вместо свайпа,
+    // можно нажимать на область в пределах поля field и имитировать свайпы
+    const fieldPosition = field.getBoundingClientRect();
+    const centerX = field.clientWidth / 2;
+    const centerY = field.clientHeight / 2;
+    const relativeX = touchX - centerX - fieldPosition.left;
+    const relativeY = touchY - centerY - fieldPosition.top;
+    const angleDegrees = Math.atan2(relativeY, relativeX) * (180 / Math.PI);
+
+    if (angleDegrees > -45 && angleDegrees <= 45) {
+        slideRight();
+    } else if (angleDegrees > 45 && angleDegrees <= 135) {
+        slideDown();
+    } else if (angleDegrees > 135 || angleDegrees <= -135) {
+        slideLeft();
+    } else {
+        slideUp();
+    }
 });

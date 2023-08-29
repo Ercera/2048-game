@@ -1,5 +1,5 @@
 let field = document.querySelector(".field");
-let box = document.querySelectorAll(".box");
+let isGameFinished = false;
 
 const continueButton = document.getElementById("continueBtn");
 const startButton = document.getElementById("startBtn");
@@ -109,6 +109,48 @@ const possibleMovesCheck = () => {
         matrix[0].map((col, j) => adjacentCheck(matrix.map(row => row[j]))).some(Boolean);
 };
 
+async function animateButton(button, textBtn) {
+    const buttonText = textBtn;
+    button.textContent = '';
+
+    for (let i = 0; i < buttonText.length; i++) {
+        await new Promise(resolve => {
+            setTimeout(() => {
+                button.textContent += buttonText[i];
+                resolve();
+            }, 150);
+        });
+    }
+}
+
+const changeBoxStyles = () => {
+    const boxElements = document.querySelectorAll('.box');
+    boxElements.forEach(box => {
+        box.style.transition = 'all 5s ease-in';
+
+    });
+    setTimeout(() => {
+        boxElements.forEach(box => {
+            box.style.backgroundColor = 'var(--gray-bg)';
+            box.style.color = 'var(--text-over)';
+        });
+    }, 150);
+};
+
+const gameOver = (timeout) => {
+    if (!possibleMovesCheck()) {
+        setTimeout(() => {
+            isGameFinished = true;
+            finish.classList.remove("hide");
+            restartButton.classList.remove("hide");
+            continueButton.classList.add("hide");
+            overText.classList.remove("hide");
+            overResult.innerText = `Final score: ${score}`;
+            changeBoxStyles();
+        }, timeout);
+    }
+};
+
 const randomPosition = (arr) => {
     return Math.floor(Math.random() * arr.length);
 };
@@ -139,11 +181,10 @@ const generateNumber = (number) => {
             generateNumber(number);
         }
     } else {
-        setTimeout(() => {
-            gameOver();
-            prevMatrix = null;
-            prevScore = undefined;
-        }, 500);
+        gameOver();
+        animateButton(restartButton, 'Restart...?!');
+        prevMatrix = null;
+        prevScore = undefined;
     }
 };
 
@@ -187,9 +228,7 @@ const arraysEqual = (arr1, arr2) => {
 
 // ======== Кнопки меню ======== 
 const home = () => {
-    if (!finish.classList.contains("hide")) {
-        return; // Игра завершена, не выполняем дополнительные действия
-    }
+    if (isGameFinished) return;
 
     container.classList.add("hide");
     coverScreen.classList.remove("hide");
@@ -198,9 +237,7 @@ const home = () => {
 }
 
 const toggleTheme = () => {
-    if (!finish.classList.contains("hide")) {
-        return; // Игра завершена, не выполняем дополнительные действия
-    }
+    if (isGameFinished) return;
 
     if (localStorage.getItem('theme') === 'theme-dark') {
         setTheme('theme-light');
@@ -210,9 +247,7 @@ const toggleTheme = () => {
 }
 
 const undo = () => {
-    if (!finish.classList.contains("hide")) {
-        return; // Игра завершена, не выполняем дополнительные действия
-    }
+    if (isGameFinished) return;
 
     if (prevMatrix) {
         matrix = JSON.parse(JSON.stringify(prevMatrix));
@@ -245,6 +280,7 @@ const decision = () => {
 
 // Объединенная функция slide
 const slide = (direction = false, matrixSize = 4, reverse = false) => {
+    if (isGameFinished) return;
     const oldMatrix = JSON.parse(JSON.stringify(matrix));
     let isMatrixChanged = false;
     prevScore = score;
@@ -333,63 +369,35 @@ const startGame = () => {
 };
 
 startButton.addEventListener("click", () => {
+    isGameFinished = false;
     startGame();
     swipeDirection = "";
 });
 
 restartButton.addEventListener("click", () => {
+    isGameFinished = false;
     startGame();
     swipeDirection = "";
 });
 
 continueButton.addEventListener("click", () => {
+    isGameFinished = false;
     continueGame();
     swipeDirection = "";
 });
 
-function animateButton(button) {
-    const buttonText = button.textContent;
-    button.textContent = '';
-
-    for (let i = 0; i < buttonText.length; i++) {
-        setTimeout(() => {
-            button.textContent += buttonText[i];
-        }, i * 200);
-    }
-}
-
-const gameOver = () => {
-    if (!possibleMovesCheck()) {
-        finish.classList.remove("hide");
-        continueButton.classList.add("hide");
-        overText.classList.remove("hide");
-        overResult.innerText = `Final score: ${score}`;
-        animateButton(restartButton);
-        if (!finish.classList.contains('hide')) {
-            box.forEach(box => {
-                box.style.transition = 'all 5s ease-in';
-                box.style.backgroundColor = 'var(--graybg)';
-                box.style.color = 'var(--text-color)';
-            });
-        }
-    }
-};
-
 // ======== Обработка слайдов и жестов: ======== 
 // Общая функция для обработки действий слайдов (клавиши и свайпы)
 function handleSlideAction(slideFunction) {
-    if (!finish.classList.contains("hide")) {
-        return; // Игра завершена, не выполняем дополнительные действия
-    }
+    if (isGameFinished) return;
 
     slideFunction();
     document.getElementById("score").innerText = score;
     if (!possibleMovesCheck()) {
-        setTimeout(() => {
-            gameOver();
-            prevMatrix = null;
-            prevScore = undefined;
-        }, 500);
+        gameOver();
+        animateButton(restartButton, 'Restart...?!');
+        prevMatrix = null;
+        prevScore = undefined;
     }
 }
 
@@ -418,6 +426,7 @@ field.addEventListener("touchstart", (event) => {
     startY = touchY; // Сохраняем начальные координаты Y
     startX = touchX; // Сохраняем начальные координаты X
 });
+
 field.addEventListener("touchmove", (event) => {
     if (isSwiped) {
         getXY(event);
@@ -434,9 +443,7 @@ field.addEventListener("touchmove", (event) => {
 });
 
 field.addEventListener("touchend", () => {
-    if (!finish.classList.contains("hide")) {
-        return; // Игра завершена, не выполняем дополнительные действия
-    }
+    if (isGameFinished) return;
 
     isSwiped = false;
     const swipeCalls = {

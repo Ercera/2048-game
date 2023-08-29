@@ -18,30 +18,30 @@
     <div class="cover-screen">
         <h2 id="over-text" class="hide">Game Over</h2>
         <p id="result"></p>
-        <button id="continue" class="btn btn__continue hide">Continue</button>
-        <button id="start-button" class="btn btn__start">Start Game</button>
+        <button id="continueBtn" class="btn btn__continue hide">Continue</button>
+        <button id="startBtn" class="btn btn__start">Start Game</button>
     </div>
     <div class="container hide">
         <div class="heading">
             <div id="finish" class="hide">
                 <h2 id="finish__over-text" class="hide">Game Over</h2>
                 <p id="finish__result"></p>
-                <button id="restart-button" class="btn btn__start">Restart...?!</button>
+                <button id="restartBtn" class="btn btn__start">Restart...?!</button>
             </div>
             <div class="app-name">
                 <h1>2048</h1>
             </div>
-            <button class="btn home" onclick="home()">
+            <button class="btn home" id="homeBtn">
                 <svg>
                     <use xlink:href="./img/home.svg#home" />
                 </svg>
             </button>
-            <button class="btn theme" onclick="toggleTheme()">
+            <button class="btn theme" id="themeBtn">
                 <svg>
                     <use xlink:href="./img/theme.svg#themeTest" />
                 </svg>
             </button>
-            <button class="btn undo" onclick="undo()">
+            <button class="btn undo" id="undoBtn">
                 <svg>
                     <use xlink:href="./img/undo.svg#undo" />
                 </svg>

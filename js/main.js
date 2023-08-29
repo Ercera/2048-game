@@ -1,8 +1,14 @@
 let field = document.querySelector(".field");
 let box = document.querySelectorAll(".box");
-const continueButton = document.getElementById("continue");
-const startButton = document.getElementById("start-button");
-const restartButton = document.getElementById("restart-button");
+
+const continueButton = document.getElementById("continueBtn");
+const startButton = document.getElementById("startBtn");
+const restartButton = document.getElementById("restartBtn");
+
+const homeButton = document.getElementById("homeBtn");
+const themeButton = document.getElementById("themeBtn");
+const undoButton = document.getElementById("undoBtn");
+
 const container = document.querySelector(".container");
 const coverScreen = document.querySelector(".cover-screen");
 const finish = document.querySelector("#finish");
@@ -18,9 +24,7 @@ let matrix,
     prevScore,
     isSwiped,
     touchY,
-    initialY = 0,
     touchX,
-    initialX = 0,
     rows = 4,
     columns = 4,
     swipeDirection;
@@ -37,18 +41,6 @@ const getXY = (e) => {
 function setTheme(themeName) {
     localStorage.setItem('theme', themeName);
     document.documentElement.className = themeName;
-}
-
-const toggleTheme = () => {
-    if (!finish.classList.contains("hide")) {
-        return; // Игра завершена, не выполняем дополнительные действия
-    }
-
-    if (localStorage.getItem('theme') === 'theme-dark') {
-        setTheme('theme-light');
-    } else {
-        setTheme('theme-dark');
-    }
 }
 
 // ======== Состояние игры. ======== 
@@ -189,13 +181,7 @@ const arraysEqual = (arr1, arr2) => {
     return JSON.stringify(arr1) === JSON.stringify(arr2);
 };
 
-function finishGame() {
-    if (restartButton.classList.contains("hide")) {
-        return;
-    }
-}
-
-// Кнопка возврата на главный экран
+// ======== Кнопки меню ======== 
 const home = () => {
     if (!finish.classList.contains("hide")) {
         return; // Игра завершена, не выполняем дополнительные действия
@@ -207,17 +193,18 @@ const home = () => {
     currResult.innerText = `Current score: ${score}`;
 }
 
-// Генерация рандомных цифр 2 или 4
-const decision = () => {
-    let decision = Math.random() > 0.5 ? 1 : 0;
-    if (decision) {
-        setTimeout(generateNumber(4), 250);
+const toggleTheme = () => {
+    if (!finish.classList.contains("hide")) {
+        return; // Игра завершена, не выполняем дополнительные действия
+    }
+
+    if (localStorage.getItem('theme') === 'theme-dark') {
+        setTheme('theme-light');
     } else {
-        setTimeout(generateNumber(2), 250);
+        setTheme('theme-dark');
     }
 }
 
-// Для восстановления сетки матрицы на шаг назад
 const undo = () => {
     if (!finish.classList.contains("hide")) {
         return; // Игра завершена, не выполняем дополнительные действия
@@ -237,6 +224,20 @@ const undo = () => {
         prevScore = undefined;
     }
 };
+
+homeButton.addEventListener("click", home);
+themeButton.addEventListener("click", toggleTheme);
+undoButton.addEventListener("click", undo);
+
+// Генерация рандомных цифр 2 или 4
+const decision = () => {
+    let decision = Math.random() > 0.5 ? 1 : 0;
+    if (decision) {
+        setTimeout(generateNumber(4), 250);
+    } else {
+        setTimeout(generateNumber(2), 250);
+    }
+}
 
 // Объединенная функция slide
 const slide = (direction = false, matrixSize = 4, reverse = false) => {

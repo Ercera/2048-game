@@ -139,7 +139,11 @@ const generateNumber = (number) => {
             generateNumber(number);
         }
     } else {
-        gameOver();
+        setTimeout(() => {
+            gameOver();
+            prevMatrix = null;
+            prevScore = undefined;
+        }, 500);
     }
 };
 
@@ -381,9 +385,11 @@ function handleSlideAction(slideFunction) {
     slideFunction();
     document.getElementById("score").innerText = score;
     if (!possibleMovesCheck()) {
-        gameOver();
-        prevMatrix = null;
-        prevScore = undefined;
+        setTimeout(() => {
+            gameOver();
+            prevMatrix = null;
+            prevScore = undefined;
+        }, 500);
     }
 }
 

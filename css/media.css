@@ -1,0 +1,51 @@
+@media (max-width: 768px) {
+  body {
+    overflow: hidden;
+  }
+  .container {
+    height: 100vh;
+    margin: 1em auto;
+  }
+  .btn__start,
+  .btn__continue {
+    width: 50vmin;
+  }
+  .btn {
+    border-radius: 0.3em;
+    font-size: 12px;
+  }
+  .box {
+    font-size: 36px;
+  }
+}
+@media (max-width: 527px) {
+  .btn svg {
+    width: 70%;
+    height: 70%;
+  }
+  .box {
+    font-size: 30px;
+  }
+}
+@media (max-width: 450px) {
+  .container {
+    margin: auto;
+    padding: 0;
+  }
+  .heading {
+    grid-template-columns: repeat(3, minmax(20px, 5.5em));
+    gap: 0.75em;
+  }
+  .field {
+    width: 288px;
+    height: 288px;
+  }
+  .btn svg {
+    width: 65%;
+    height: 65%;
+  }
+  .box {
+    width: 66px;
+    height: 66px;
+  }
+}

@@ -25,6 +25,8 @@ let matrix,
     isSwiped,
     touchY,
     touchX,
+    startX,
+    startY,
     rows = 4,
     columns = 4,
     swipeDirection;
@@ -38,7 +40,7 @@ const getXY = (e) => {
 };
 
 // ======== Управление темой ======== 
-function setTheme(themeName) {
+const setTheme = (themeName) => {
     localStorage.setItem('theme', themeName);
     document.documentElement.className = themeName;
 }
@@ -55,7 +57,7 @@ const checkScore = () => {
     }
 }
 
-function restoreGameState() {
+const restoreGameState = () => {
     const savedSettings = {
         theme: 'theme-light',
         matrix: null,
@@ -137,7 +139,7 @@ const changeBoxStyles = () => {
     }, 150);
 };
 
-const gameOver = (timeout) => {
+const gameOver = (timeout = 40) => {
     if (!possibleMovesCheck()) {
         setTimeout(() => {
             isGameFinished = true;
@@ -156,9 +158,9 @@ const randomPosition = (arr) => {
 };
 
 const hasEmptyBox = () => {
-    for (let r in matrix) {
-        for (let c in matrix[r]) {
-            if (matrix[r][c] == 0) {
+    for (let row in matrix) {
+        for (let column in matrix[row]) {
+            if (matrix[row][column] == 0) {
                 return true;
             }
         }
@@ -213,8 +215,8 @@ const checker = (arr, reverseArr = false) => {
 };
 
 // Функции для более легкого чтения функции slide
-// Обновление элементов
-const updateElement = (i, j, value) => {
+// Обновление отображения элемента на сетке
+const updateBox = (i, j, value) => {
     const element = document.querySelector(`[data-position='${i}_${j}']`);
     element.innerHTML = value ? value : "";
     element.classList.value = "";
@@ -225,48 +227,6 @@ const updateElement = (i, j, value) => {
 const arraysEqual = (arr1, arr2) => {
     return JSON.stringify(arr1) === JSON.stringify(arr2);
 };
-
-// ======== Кнопки меню ======== 
-const home = () => {
-    if (isGameFinished) return;
-
-    container.classList.add("hide");
-    coverScreen.classList.remove("hide");
-    currText.classList.add("hide");
-    currResult.innerText = `Current score: ${score}`;
-}
-
-const toggleTheme = () => {
-    if (isGameFinished) return;
-
-    if (localStorage.getItem('theme') === 'theme-dark') {
-        setTheme('theme-light');
-    } else {
-        setTheme('theme-dark');
-    }
-}
-
-const undo = () => {
-    if (isGameFinished) return;
-
-    if (prevMatrix) {
-        matrix = JSON.parse(JSON.stringify(prevMatrix));
-        score = prevScore;
-        // Обновление отображения на сетке
-        for (let i = 0; i < rows; i++) {
-            for (let j = 0; j < columns; j++) {
-                updateElement(i, j, matrix[i][j]);
-            }
-        }
-        document.getElementById("score").innerText = score;
-        prevMatrix = null;
-        prevScore = undefined;
-    }
-};
-
-homeButton.addEventListener("click", home);
-themeButton.addEventListener("click", toggleTheme);
-undoButton.addEventListener("click", undo);
 
 // Генерация рандомных цифр 2 или 4
 const decision = () => {
@@ -297,7 +257,7 @@ const slide = (direction = false, matrixSize = 4, reverse = false) => {
             const rowIndex = direction ? i : j;
             const colIndex = direction ? j : i;
             matrix[rowIndex][colIndex] = num[j];
-            updateElement(rowIndex, colIndex, matrix[rowIndex][colIndex]);
+            updateBox(rowIndex, colIndex, matrix[rowIndex][colIndex]);
         }
     }
     if (!arraysEqual(oldMatrix, matrix)) { // Проверяем изменения во всей матрице
@@ -328,6 +288,47 @@ const slideLeft = () => {
     slide(true, rows);
 };
 
+// ======== Кнопки меню ======== 
+// Обработчик кнопки "Home"
+const home = () => {
+    if (isGameFinished) return;
+
+    container.classList.add("hide");
+    coverScreen.classList.remove("hide");
+    currText.classList.add("hide");
+    currResult.innerText = `Current score: ${score}`;
+}
+
+// Обработчик кнопки "Toggle Theme"
+const toggleTheme = () => {
+    if (isGameFinished) return;
+
+    if (localStorage.getItem('theme') === 'theme-dark') {
+        setTheme('theme-light');
+    } else {
+        setTheme('theme-dark');
+    }
+}
+
+// Обработчик кнопки "Undo"
+const undo = () => {
+    if (isGameFinished) return;
+
+    if (prevMatrix) {
+        matrix = JSON.parse(JSON.stringify(prevMatrix));
+        score = prevScore;
+        // Обновление отображения на сетке
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                updateBox(i, j, matrix[i][j]);
+            }
+        }
+        document.getElementById("score").innerText = score;
+        prevMatrix = null;
+        prevScore = undefined;
+    }
+};
+
 // ======== Логика запуска: ======== 
 const gameCheck = () => {
     document.getElementById("score").innerText = score;
@@ -339,6 +340,7 @@ const gameCheck = () => {
 }
 
 const continueGame = () => {
+    isGameFinished = false;
     matrix = JSON.parse(localStorage.getItem('matrix'));
     score = parseInt(localStorage.getItem('score'));
     gameCheck();
@@ -346,12 +348,14 @@ const continueGame = () => {
     // Обновление отображения элементов на сетке (визуального представления матрицы)
     matrix.forEach((row, i) => {
         row.forEach((value, j) => {
-            updateElement(i, j, value);
+            updateBox(i, j, value);
         });
     });
+    swipeDirection = "";
 };
 
 const startGame = () => {
+    isGameFinished = false;
     matrix = [
         [0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -366,25 +370,8 @@ const startGame = () => {
     decision();
     finish.classList.add("hide");
     overText.classList.add("hide");
+    swipeDirection = "";
 };
-
-startButton.addEventListener("click", () => {
-    isGameFinished = false;
-    startGame();
-    swipeDirection = "";
-});
-
-restartButton.addEventListener("click", () => {
-    isGameFinished = false;
-    startGame();
-    swipeDirection = "";
-});
-
-continueButton.addEventListener("click", () => {
-    isGameFinished = false;
-    continueGame();
-    swipeDirection = "";
-});
 
 // ======== Обработка слайдов и жестов: ======== 
 // Общая функция для обработки действий слайдов (клавиши и свайпы)
@@ -409,25 +396,25 @@ const keyToSlideFunction = {
     ArrowDown: slideDown
 };
 
-// Обработчик события клавиатуры и свайпов
-document.addEventListener("keyup", (e) => {
+// ======= Обработчик события клавиатуры и свайпов ======= 
+// Функция обработки события клавиатуры
+const handleKeyup = (e) => {
     const slideFunction = keyToSlideFunction[e.code];
     if (slideFunction) {
         handleSlideAction(slideFunction);
     }
-});
+};
 
-let startY;
-let startX;
-
-field.addEventListener("touchstart", (event) => {
+// Функция обработки события касания поля
+const handleTouchStart = (event) => {
     isSwiped = true;
     getXY(event);
-    startY = touchY; // Сохраняем начальные координаты Y
-    startX = touchX; // Сохраняем начальные координаты X
-});
+    startY = touchY;
+    startX = touchX;
+};
 
-field.addEventListener("touchmove", (event) => {
+// Функция обработки события перемещения пальца по экрану
+const handleTouchMove = event => {
     if (isSwiped) {
         getXY(event);
         let diffX = touchX - startX;
@@ -440,24 +427,10 @@ field.addEventListener("touchmove", (event) => {
             swipeDirection = diffX > 0 ? "right" : "left";
         }
     }
-});
+};
 
-field.addEventListener("touchend", () => {
-    if (isGameFinished) return;
-
-    isSwiped = false;
-    const swipeCalls = {
-        up: slideUp,
-        down: slideDown,
-        left: slideLeft,
-        right: slideRight,
-    };
-    const slideFunction = swipeCalls[swipeDirection];
-    if (slideFunction) {
-        handleSlideAction(slideFunction);
-    }
-    // Тестовое использование, для мобильных устройств, вместо свайпа,
-    // можно нажимать на область в пределах поля field и имитировать свайпы
+// Функция обработки угла свайпа на поле field для альтернативного управления
+const handleTouchAngle = () => {
     const fieldPosition = field.getBoundingClientRect();
     const centerX = field.clientWidth / 2;
     const centerY = field.clientHeight / 2;
@@ -474,4 +447,39 @@ field.addEventListener("touchend", () => {
     } else {
         slideUp();
     }
-});
+};
+
+// Функция обработки события отпускания пальца
+const handleTouchEnd = () => {
+    if (isGameFinished) return;
+
+    isSwiped = false;
+    const swipeCalls = {
+        up: slideUp,
+        down: slideDown,
+        left: slideLeft,
+        right: slideRight,
+    };
+    const slideFunction = swipeCalls[swipeDirection];
+    if (slideFunction) {
+        handleSlideAction(slideFunction);
+    }
+    handleTouchAngle();
+};
+
+// ======== Все слушатели событий ========
+// Кпопки настроек
+homeButton.addEventListener("click", home);
+themeButton.addEventListener("click", toggleTheme);
+undoButton.addEventListener("click", undo);
+
+// Кнопки меню
+startButton.addEventListener("click", startGame);
+restartButton.addEventListener("click", startGame);
+continueButton.addEventListener("click", continueGame);
+
+// Обработка для мобильных браузеров
+document.addEventListener("keyup", handleKeyup);
+field.addEventListener("touchstart", handleTouchStart);
+field.addEventListener("touchmove", handleTouchMove);
+field.addEventListener("touchend", handleTouchEnd);

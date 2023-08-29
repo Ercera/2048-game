@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/media.css">
+    <link rel="stylesheet" href="./css/main.min.css">
+    <link rel="stylesheet" href="./css/media.min.css">
     <title>2048 Game</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png">
+    <link rel="manifest" href="./favicon/site.webmanifest">
 </head>
 
 <body>
@@ -19,22 +23,27 @@
     </div>
     <div class="container hide">
         <div class="heading">
+            <div id="finish" class="hide">
+                <h2 id="finish__over-text" class="hide">Game Over</h2>
+                <p id="finish__result"></p>
+                <button id="restart-button" class="btn btn__start">Restart...?!</button>
+            </div>
             <div class="app-name">
                 <h1>2048</h1>
             </div>
             <button class="btn home" onclick="home()">
                 <svg>
-                    <use xlink:href="./img/sprites.svg#home" />
+                    <use xlink:href="./img/home.svg#home" />
                 </svg>
             </button>
             <button class="btn theme" onclick="toggleTheme()">
                 <svg>
-                    <use xlink:href="./img/sprites.svg#theme" />
+                    <use xlink:href="./img/theme.svg#themeTest" />
                 </svg>
             </button>
             <button class="btn undo" onclick="undo()">
                 <svg>
-                    <use xlink:href="./img/sprites.svg#undo" />
+                    <use xlink:href="./img/undo.svg#undo" />
                 </svg>
             </button>
             <div class="best-score">

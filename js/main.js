@@ -1,10 +1,15 @@
 let field = document.querySelector(".field");
+let box = document.querySelectorAll(".box");
 const continueButton = document.getElementById("continue");
 const startButton = document.getElementById("start-button");
+const restartButton = document.getElementById("restart-button");
 const container = document.querySelector(".container");
 const coverScreen = document.querySelector(".cover-screen");
-const result = document.getElementById("result");
-const overText = document.getElementById("over-text");
+const finish = document.querySelector("#finish");
+const currResult = document.getElementById("result");
+const currText = document.getElementById("over-text");
+const overText = document.getElementById("finish__over-text");
+const overResult = document.getElementById("finish__result");
 
 let matrix,
     prevMatrix,
@@ -35,6 +40,10 @@ function setTheme(themeName) {
 }
 
 const toggleTheme = () => {
+    if (!finish.classList.contains("hide")) {
+        return; // Игра завершена, не выполняем дополнительные действия
+    }
+
     if (localStorage.getItem('theme') === 'theme-dark') {
         setTheme('theme-light');
     } else {
@@ -180,26 +189,40 @@ const arraysEqual = (arr1, arr2) => {
     return JSON.stringify(arr1) === JSON.stringify(arr2);
 };
 
+function finishGame() {
+    if (restartButton.classList.contains("hide")) {
+        return;
+    }
+}
+
 // Кнопка возврата на главный экран
 const home = () => {
+    if (!finish.classList.contains("hide")) {
+        return; // Игра завершена, не выполняем дополнительные действия
+    }
+
     container.classList.add("hide");
     coverScreen.classList.remove("hide");
-    overText.classList.add("hide");
-    result.innerText = `Current score: ${score}`;
+    currText.classList.add("hide");
+    currResult.innerText = `Current score: ${score}`;
 }
 
 // Генерация рандомных цифр 2 или 4
 const decision = () => {
     let decision = Math.random() > 0.5 ? 1 : 0;
     if (decision) {
-        setTimeout(generateNumber(4), 200);
+        setTimeout(generateNumber(4), 250);
     } else {
-        setTimeout(generateNumber(2), 200);
+        setTimeout(generateNumber(2), 250);
     }
 }
 
 // Для восстановления сетки матрицы на шаг назад
 const undo = () => {
+    if (!finish.classList.contains("hide")) {
+        return; // Игра завершена, не выполняем дополнительные действия
+    }
+
     if (prevMatrix) {
         matrix = JSON.parse(JSON.stringify(prevMatrix));
         score = prevScore;
@@ -300,9 +323,16 @@ const startGame = () => {
     localStorage.setItem('matrix', JSON.stringify(matrix));
     localStorage.setItem('score', score);
     decision();
+    finish.classList.add("hide");
+    overText.classList.add("hide");
 };
 
 startButton.addEventListener("click", () => {
+    startGame();
+    swipeDirection = "";
+});
+
+restartButton.addEventListener("click", () => {
     startGame();
     swipeDirection = "";
 });
@@ -312,24 +342,47 @@ continueButton.addEventListener("click", () => {
     swipeDirection = "";
 });
 
+function animateButton(button) {
+    const buttonText = button.textContent;
+    button.textContent = '';
+
+    for (let i = 0; i < buttonText.length; i++) {
+        setTimeout(() => {
+            button.textContent += buttonText[i];
+        }, i * 200);
+    }
+}
+
 const gameOver = () => {
     if (!possibleMovesCheck()) {
-        coverScreen.classList.remove("hide");
-        container.classList.add("hide");
+        finish.classList.remove("hide");
         continueButton.classList.add("hide");
         overText.classList.remove("hide");
-        result.innerText = `Final score: ${score}`;
-        startButton.innerText = "Restart Game";
+        overResult.innerText = `Final score: ${score}`;
+        animateButton(restartButton);
+        if (!finish.classList.contains('hide')) {
+            box.forEach(box => {
+                box.style.transition = 'all 5s ease-in';
+                box.style.backgroundColor = 'var(--graybg)';
+                box.style.color = 'var(--text-color)';
+            });
+        }
     }
 };
 
 // ======== Обработка слайдов и жестов: ======== 
 // Общая функция для обработки действий слайдов (клавиши и свайпы)
 function handleSlideAction(slideFunction) {
+    if (!finish.classList.contains("hide")) {
+        return; // Игра завершена, не выполняем дополнительные действия
+    }
+
     slideFunction();
     document.getElementById("score").innerText = score;
     if (!possibleMovesCheck()) {
         gameOver();
+        prevMatrix = null;
+        prevScore = undefined;
     }
 }
 
@@ -374,6 +427,10 @@ field.addEventListener("touchmove", (event) => {
 });
 
 field.addEventListener("touchend", () => {
+    if (!finish.classList.contains("hide")) {
+        return; // Игра завершена, не выполняем дополнительные действия
+    }
+
     isSwiped = false;
     const swipeCalls = {
         up: slideUp,
@@ -384,5 +441,23 @@ field.addEventListener("touchend", () => {
     const slideFunction = swipeCalls[swipeDirection];
     if (slideFunction) {
         handleSlideAction(slideFunction);
+    }
+    // Тестовое использование, для мобильных устройств, вместо свайпа,
+    // можно нажимать на область в пределах поля field и имитировать свайпы
+    const fieldPosition = field.getBoundingClientRect();
+    const centerX = field.clientWidth / 2;
+    const centerY = field.clientHeight / 2;
+    const relativeX = touchX - centerX - fieldPosition.left;
+    const relativeY = touchY - centerY - fieldPosition.top;
+    const angleDegrees = Math.atan2(relativeY, relativeX) * (180 / Math.PI);
+
+    if (angleDegrees > -45 && angleDegrees <= 45) {
+        slideRight();
+    } else if (angleDegrees > 45 && angleDegrees <= 135) {
+        slideDown();
+    } else if (angleDegrees > 135 || angleDegrees <= -135) {
+        slideLeft();
+    } else {
+        slideUp();
     }
 });
